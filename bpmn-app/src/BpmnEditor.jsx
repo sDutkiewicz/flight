@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 import jsPDF from 'jspdf';
+import { Canvg } from 'canvg';
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-codes.css';
@@ -9,6 +10,7 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
 export default function BpmnEditor() {
   const containerRef = useRef(null);
   const modelerRef = useRef(null);
+  const [fileName, setFileName] = useState('diagram');
 
   useEffect(() => {
     const modeler = new BpmnModeler({
@@ -56,13 +58,46 @@ export default function BpmnEditor() {
   const handleSave = async () => {
     try {
       const { xml } = await modelerRef.current.saveXML({ format: true });
-      const blob = new Blob([xml], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'diagram.bpmn';
-      a.click();
-      URL.revokeObjectURL(url);
+      let base = (fileName || 'diagram').trim();
+      if (!base.toLowerCase().endsWith('.bpmn')) base += '.bpmn';
+
+      // Jeśli dostępne nowoczesne API zapisu (Chrome / Edge / Opera itp.)
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: base,
+            types: [
+              {
+                description: 'BPMN Diagram',
+                accept: { 'application/xml': ['.bpmn'] }
+              }
+            ]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(xml);
+          await writable.close();
+        } catch (pickerErr) {
+          if (pickerErr?.name !== 'AbortError') {
+            console.warn('Błąd API showSaveFilePicker, używam pobierania anchor.', pickerErr);
+            const blob = new Blob([xml], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = base;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback klasyczny - przeglądarka zapyta tylko o folder (wg ustawień) albo zapisze w Domyślne Pobrane
+        const blob = new Blob([xml], { type: 'application/xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = base;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     } catch (err) {
       console.error('Błąd zapisu diagramu:', err);
     }
@@ -85,26 +120,48 @@ export default function BpmnEditor() {
     try {
       const { svg } = await modelerRef.current.saveSVG();
 
-      // Konwersja SVG -> Canvas -> PNG
-      const img = new Image();
-      const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(svgBlob);
+      // Ustalenie rozmiarów z viewBox lub atrybutów width/height
+      let width = 1000;
+      let height = 700;
+      const viewBoxMatch = svg.match(/viewBox="([\d.\s-]+)"/);
+      if (viewBoxMatch) {
+        const parts = viewBoxMatch[1].trim().split(/\s+/).map(Number);
+        if (parts.length === 4) {
+          width = parts[2];
+          height = parts[3];
+        }
+      } else {
+        const wMatch = svg.match(/width="(\d+(?:\.\d+)?)"/);
+        const hMatch = svg.match(/height="(\d+(?:\.\d+)?)"/);
+        if (wMatch) width = parseFloat(wMatch[1]);
+        if (hMatch) height = parseFloat(hMatch[1]);
+      }
 
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width || 1000;
-        canvas.height = img.height || 700;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(url);
+      // Skalowanie do strony A4 jeśli diagram większy
+      const a4Portrait = { w: 595.28, h: 841.89 }; // pt
+      const a4Landscape = { w: 841.89, h: 595.28 };
+      const landscape = width > height;
+      const page = landscape ? a4Landscape : a4Portrait;
+      const scale = Math.min(page.w / width, page.h / height, 1); // nie powiększaj ponad 100%
 
-        const pngData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-        pdf.addImage(pngData, 'PNG', 20, 20, 800, 550);
-        pdf.save('diagram.pdf');
-      };
+      // Render SVG do canvasa przy użyciu canvg (zapewnia poprawne fonty i style)
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      const v = await Canvg.fromString(ctx, svg, { ignoreMouse: true, ignoreAnimation: true });
+      await v.render();
 
-      img.src = url;
+      // Konwersja do PNG
+      const pngData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'pt', format: 'a4' });
+      const drawW = width * scale;
+      const drawH = height * scale;
+      const offsetX = (page.w - drawW) / 2;
+      const offsetY = (page.h - drawH) / 2;
+      pdf.addImage(pngData, 'PNG', offsetX, offsetY, drawW, drawH);
+      pdf.save('diagram.pdf');
     } catch (err) {
       console.error('Błąd eksportu PDF:', err);
     }
@@ -132,14 +189,23 @@ export default function BpmnEditor() {
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-gray-50">
       <div className="flex justify-between items-center mb-4 px-4 py-2 max-w-[1920px] mx-auto w-full gap-2">
-        <button
-          onClick={handleSave}
-          className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white 
-                     rounded-lg shadow hover:from-blue-700 hover:to-blue-600 transition 
-                     border border-gray-400"
-        >
-          💾 Zapisz diagram
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            placeholder="Nazwa pliku"
+            className="px-3 py-2 border border-gray-300 rounded w-40 focus:outline-none focus:ring focus:ring-blue-300 text-sm"
+          />
+          <button
+            onClick={handleSave}
+            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white 
+                       rounded-lg shadow hover:from-blue-700 hover:to-blue-600 transition 
+                       border border-gray-400"
+          >
+            💾 Zapisz .bpmn
+          </button>
+        </div>
 
         <label className="cursor-pointer bg-gradient-to-r from-green-600 to-green-500 
                          text-white px-6 py-2 rounded-lg shadow 
