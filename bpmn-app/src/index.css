@@ -2,4 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Highlight marker for issues */
+.highlight-problem > * rect,
+.highlight-problem > rect,
+.highlight-problem circle {
+	stroke: #dc2626 !important;
+	stroke-width: 3 !important;
+	animation: pulse-problem 1.2s ease-in-out 2;
+}
+
+@keyframes pulse-problem {
+	0%,100% { filter: drop-shadow(0 0 0 rgba(220,38,38,0)); }
+	50% { filter: drop-shadow(0 0 6px rgba(220,38,38,0.7)); }
+}
+
+@keyframes fade-in { from { opacity:0; transform: translateY(4px);} to { opacity:1; transform: translateY(0);} }
+.animate-fade-in { animation: fade-in .25s ease; }
+
+/* Modern base layout */
+body, #root { min-height:100vh; }
+body {
+	background:#ffffff; /* changed from dark radial gradient */
+	color:#1e293b;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Ensure BPMN drawing surface inherits white background */
+.djs-container, .djs-container .viewport, .diagram-surface {
+	background:#ffffff !important;
+}
+
+/* Glass utilities */
+.glass-bar { background: linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0.55)); backdrop-filter: blur(14px) saturate(160%); border:1px solid rgba(255,255,255,0.4); box-shadow:0 4px 16px -2px rgba(0,0,0,0.15); }
+.glass-panel { background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.70)); backdrop-filter: blur(18px) saturate(180%); border:1px solid rgba(255,255,255,0.45); box-shadow:0 6px 24px -4px rgba(0,0,0,0.18); }
+
+/* Button modern styles */
+.btn { position:relative; display:inline-flex; align-items:center; gap:.25rem; font-weight:500; border-radius:.5rem; font-size:.875rem; line-height:1.25rem; padding:.4rem .8rem; transition:all .18s ease; cursor:pointer; }
+.btn:focus { outline:2px solid rgba(59,130,246,.6); outline-offset:2px; }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.btn-primary { color:#fff; background:linear-gradient(90deg,#2563eb,#1d4ed8); box-shadow:0 2px 6px -1px rgba(0,0,0,.25); }
+.btn-primary:hover { background:linear-gradient(90deg,#1d4ed8,#1e40af); }
+.btn-secondary { background:rgba(255,255,255,.7); color:#1e293b; border:1px solid #cbd5e1; box-shadow:0 2px 5px -1px rgba(0,0,0,.15); }
+.btn-secondary:hover { background:#ffffff; }
+.btn-ghost { background:transparent; color:#334155; }
+.btn-ghost:hover { background:rgba(255,255,255,.3); }
+.btn-danger { color:#fff; background:linear-gradient(90deg,#e11d48,#be123c); }
+.btn-danger:hover { background:linear-gradient(90deg,#be123c,#9f1239); }
+
+/* Toolbar compactness */
+.toolbar-root { height:52px; }
+.toolbar-scroll { scrollbar-width: thin; }
+
+/* Scrollbar (Webkit) */
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#64748b,#475569); border-radius:20px; border:2px solid #0f172a; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg,#7c8796,#5b6674); }
+
+/* Canvas background subtle pattern */
+.diagram-surface { background: repeating-conic-gradient(from 45deg at 25% 25%, #f8fafc 0deg 15deg, #f1f5f9 15deg 30deg); }
+
+/* System highlight outlines */
+[data-system-color] .djs-visual > :is(rect,path) {
+	stroke-width:2.5 !important;
+}
+/* Fallback colors (cycled) */
+[data-system-color="0"] .djs-visual > rect { stroke:#2563eb !important; }
+[data-system-color="1"] .djs-visual > rect { stroke:#059669 !important; }
+[data-system-color="2"] .djs-visual > rect { stroke:#d97706 !important; }
+[data-system-color="3"] .djs-visual > rect { stroke:#7c3aed !important; }
+[data-system-color="4"] .djs-visual > rect { stroke:#db2777 !important; }
+[data-system-color="5"] .djs-visual > rect { stroke:#0d9488 !important; }
+[data-system-color="6"] .djs-visual > rect { stroke:#b45309 !important; }
+[data-system-color="7"] .djs-visual > rect { stroke:#9333ea !important; }
+[data-system-color="8"] .djs-visual > rect { stroke:#dc2626 !important; }
+[data-system-color="9"] .djs-visual > rect { stroke:#64748b !important; }
+
 
