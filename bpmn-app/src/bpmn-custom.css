@@ -1,0 +1,133 @@
+/* Custom BPMN.io styling */
+
+/* Lepsza paleta narzędzi z lewej strony */
+.djs-palette {
+  background-color: #f8f9fa !important;
+  border-right: 1px solid #e5e7eb !important;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05) !important;
+  width: 48px !important;
+  top: 70px !important;
+  bottom: 20px !important;
+  max-height: calc(100vh - 90px) !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 100 !important;
+  padding: 5px 0 !important;
+}
+
+/* Grupowanie elementów i lepsze odstępy */
+.djs-palette .group {
+  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.djs-palette .group:last-child {
+  border-bottom: none !important;
+}
+
+/* Poprawiony wygląd ikon w palecie */
+.djs-palette .entry {
+  width: 32px !important;
+  height: 32px !important;
+  margin: 4px auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+  background-color: transparent !important;
+  cursor: pointer !important;
+}
+
+.djs-palette .entry:hover {
+  background-color: #e5e7eb !important;
+}
+
+.djs-palette .entry.active {
+  background-color: #d1d5db !important;
+}
+
+/* Niestandardowy scrollbar dla palety */
+.djs-palette::-webkit-scrollbar {
+  width: 4px;
+}
+
+.djs-palette::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.djs-palette::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 4px;
+}
+
+/* Tooltip dla elementów palety */
+.djs-palette .entry::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  margin-left: 10px;
+  z-index: 1000;
+}
+
+.djs-palette .entry:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Przestrzeń robocza */
+.djs-container {
+  background-color: #f9fafb !important;
+}
+
+/* Lepsza siatka */
+.djs-container .viewport {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+}
+
+/* Lepsze style dla zadań */
+.djs-container .bpmn-icon-task {
+  color: #4b5563 !important;
+}
+
+/* Ikony kontekstowego menu */
+.djs-context-pad .entry {
+  background-color: white !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 6px !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.djs-context-pad .entry:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Znaki dla połączeń */
+.djs-connection-marker {
+  fill: #4b5563 !important;
+}
+
+/* Lepsza widoczność zaznaczonego elementu */
+.djs-element.selected .djs-outline {
+  stroke: #2563eb !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: none !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
+}

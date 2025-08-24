@@ -78,4 +78,45 @@ body {
 [data-system-color="8"] .djs-visual > rect { stroke:#dc2626 !important; }
 [data-system-color="9"] .djs-visual > rect { stroke:#64748b !important; }
 
+/* Offset BPMN palette so toolbar (Process Studio) does not cover first icons */
+.djs-palette {
+	top: 70px !important; /* toolbar height (60px) + 10px spacing */
+	max-height: calc(100vh - 80px) !important;
+	overflow-y: auto !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+/* Make palette entries more compact */
+.djs-palette .entry {
+	margin: 3px 5px !important;
+	font-size: 20px !important;
+}
+
+/* Add scrollbar styling to palette */
+.djs-palette::-webkit-scrollbar {
+	width: 4px;
+}
+
+.djs-palette::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.djs-palette::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+}
+
+/* Group all related tools together in palette */
+.djs-palette .group {
+	margin-bottom: 5px !important;
+	padding-bottom: 5px !important;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Make palette slightly wider */
+.djs-palette {
+	width: 48px !important;
+}
+
 
