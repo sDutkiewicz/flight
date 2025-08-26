@@ -1,12 +1,72 @@
-# React + Vite
+# BPMN Process Editor App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the React application for the Flight BPMN Process Editor.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js (v16.0.0 or higher)
+- npm or yarn
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+
+```bash
+npm install
+```
+
+### Starting the Development Server
+
+```bash
+npm run dev
+```
+
+The application will be available at http://localhost:5173 (or another port if 5173 is already in use).
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+The compiled application will be placed in the `dist/` directory.
+
+### Running Linting
+
+```bash
+npm run lint
+```
+
+## Dependencies
+
+This project uses:
+
+- **React**: UI library
+- **bpmn-js**: BPMN diagram modeling library
+- **Tailwind CSS**: Utility-first CSS framework
+- **Vite**: Build tool
+- **jsPDF & canvg**: For PDF and image exports
+
+## Directory Structure
+
+- `public/`: Static assets served as-is
+- `src/`: Source code
+  - `assets/`: Images and icons
+  - `components/`: Reusable React components
+  - `utils/`: Helper functions
+  - `data/`: Default data and templates
+  - `App.jsx`: Main application component
+  - `BpmnEditorClean.jsx`: Core editor implementation
+  - `index.css`: Global styles
+  - `main.jsx`: Application entry point
+
+## Key Features
+
+- BPMN diagram creation and editing
+- System and data entity tagging for tasks
+- Filtering based on tagged properties
+- Multiple export formats (BPMN XML, SVG, PNG, PDF)
+- Template library
+- Local storage persistence
+
+For more detailed information, see the main [README.md](../README.md) in the project root.
