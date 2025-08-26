@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ======= GŁÓWNE ZMIENNE I STYLE ======= */
+/* ======= MAIN VARIABLES AND STYLES ======= */
 :root {
-  /* Paleta kolorów systemów - bardziej żywe i nasycone */
+  /* System color palette - more vibrant and saturated */
   --system-color-0: #4361ee;
   --system-color-1: #ef233c;
   --system-color-2: #06d6a0;
@@ -16,7 +16,7 @@
   --system-color-8: #4cc9f0;
   --system-color-9: #90be6d;
   
-  /* Główne zmienne kolorystyczne interfejsu */
+  /* Main interface color variables */
   --main-bg: #f8fafc;
   --topbar-bg: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%);
   --topbar-border: rgba(59, 130, 246, 0.5);
@@ -30,7 +30,7 @@
   --border-radius: 6px;
 }
 
-/* Style dla błędów walidacji - bardziej wyraźne i płynne */
+/* Styles for validation errors - more distinct and smooth */
 .validation-error > * rect,
 .validation-error > rect,
 .validation-error circle {
@@ -51,7 +51,7 @@
 }
 .animate-fade-in { animation: fade-in .3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-/* Modern base layout - subtelne tło i lepsze proporcje */
+/* Modern base layout - subtle background and better proportions */
 html { scroll-behavior: smooth; }
 body, #root { min-height:100vh; }
 body {
@@ -105,21 +105,7 @@ body {
 /* Canvas background subtle pattern */
 .diagram-surface { background: repeating-conic-gradient(from 45deg at 25% 25%, #f8fafc 0deg 15deg, #f1f5f9 15deg 30deg); }
 
-/* System highlight outlines */
-[data-system-color] .djs-visual > :is(rect,path) {
-	stroke-width:2.5 !important;
-}
-/* Fallback colors (cycled) */
-[data-system-color="0"] .djs-visual > rect { stroke:#2563eb !important; }
-[data-system-color="1"] .djs-visual > rect { stroke:#059669 !important; }
-[data-system-color="2"] .djs-visual > rect { stroke:#d97706 !important; }
-[data-system-color="3"] .djs-visual > rect { stroke:#7c3aed !important; }
-[data-system-color="4"] .djs-visual > rect { stroke:#db2777 !important; }
-[data-system-color="5"] .djs-visual > rect { stroke:#0d9488 !important; }
-[data-system-color="6"] .djs-visual > rect { stroke:#b45309 !important; }
-[data-system-color="7"] .djs-visual > rect { stroke:#9333ea !important; }
-[data-system-color="8"] .djs-visual > rect { stroke:#dc2626 !important; }
-[data-system-color="9"] .djs-visual > rect { stroke:#64748b !important; }
+/* System colorize styles removed */
 
 /* Offset BPMN palette so toolbar does not cover first icons */
 .djs-palette {
@@ -323,7 +309,7 @@ body {
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Ulepszone style dla paska narzędzi */
+/* Improved styles for toolbar */
 .sticky.top-0 {
   background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%);
   border-bottom: 1px solid rgba(59, 130, 246, 0.3);

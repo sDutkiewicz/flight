@@ -1,7 +1,7 @@
 module.exports = {
   extends: [ 'bpmnlint:recommended' ],
   rules: {
-    // Możesz dostosować np. wyłączyć zasady:
+    // You can customize, e.g., disable rules:
     // 'no-bpmndi': 'off'
   }
 };

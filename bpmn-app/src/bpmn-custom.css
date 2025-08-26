@@ -1,6 +1,6 @@
 /* Custom BPMN.io styling */
 
-/* Lepsza paleta narzędzi z lewej strony */
+/* Better tool palette on the left side */
 .djs-palette {
   background-color: #f8f9fa !important;
   border-right: 1px solid #e5e7eb !important;
@@ -16,7 +16,7 @@
   padding: 5px 0 !important;
 }
 
-/* Grupowanie elementów i lepsze odstępy */
+/* Element grouping and better spacing */
 .djs-palette .group {
   margin-bottom: 8px !important;
   padding-bottom: 8px !important;
@@ -27,7 +27,7 @@
   border-bottom: none !important;
 }
 
-/* Poprawiony wygląd ikon w palecie */
+/* Improved appearance of icons in palette */
 .djs-palette .entry {
   width: 32px !important;
   height: 32px !important;
@@ -63,7 +63,7 @@
   border-radius: 4px;
 }
 
-/* Tooltip dla elementów palety */
+/* Tooltip for palette elements */
 .djs-palette .entry::after {
   content: attr(title);
   position: absolute;
@@ -89,7 +89,7 @@
   visibility: visible;
 }
 
-/* Przestrzeń robocza */
+/* Workspace */
 .djs-container {
   background-color: #f9fafb !important;
 }
@@ -102,7 +102,7 @@
   background-size: 20px 20px !important;
 }
 
-/* Lepsze style dla zadań */
+/* Better styles for tasks */
 .djs-container .bpmn-icon-task {
   color: #4b5563 !important;
 }
@@ -119,12 +119,12 @@
   background-color: #f3f4f6 !important;
 }
 
-/* Znaki dla połączeń */
+/* Markers for connections */
 .djs-connection-marker {
   fill: #4b5563 !important;
 }
 
-/* Lepsza widoczność zaznaczonego elementu */
+/* Better visibility of selected element */
 .djs-element.selected .djs-outline {
   stroke: #2563eb !important;
   stroke-width: 2px !important;

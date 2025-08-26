@@ -3,4 +3,4 @@ module.exports = {
     '@tailwindcss/postcss': {}, // ✅ zamiast tailwindcss
     autoprefixer: {},
   },
-}
+};

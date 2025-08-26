@@ -10,29 +10,67 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
 import './modal.css';
 import './bpmn-custom.css';
 
-export default function BpmnEditorClean(){
-  const containerRef=useRef(null); const modelerRef=useRef(null); const fileRef=useRef(null);
-  const [fileName,setFileName]=useState('diagram');
-  const [showTemplates,setShowTemplates]=useState(false); const [showCatalog,setShowCatalog]=useState(false);
-  const [showSaveOptions,setShowSaveOptions]=useState(false);
-  const [drag,setDrag]=useState(false); const [selected,setSelected]=useState(null);
-  const [systems,setSystems]=useState(()=>{try{return JSON.parse(localStorage.getItem('systemsCatalog')||'[]');}catch{return[]}});
-  const [dataEntities,setDataEntities]=useState(()=>{try{return JSON.parse(localStorage.getItem('dataCatalog')||'[]');}catch{return[]}});
-  const [newSystem,setNewSystem]=useState({id:'',name:''}); const [newData,setNewData]=useState('');
-  const [filterSystem,setFilterSystem]=useState(''); const [filterData,setFilterData]=useState('');
-  const [colorize,setColorize]=useState(false);
+export default function BpmnEditorClean() {
+  const containerRef = useRef(null);
+  const modelerRef = useRef(null);
+  const fileRef = useRef(null);
+  const [fileName, setFileName] = useState('diagram');
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [showSaveOptions, setShowSaveOptions] = useState(false);
+  const [drag, setDrag] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [systems, setSystems] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('systemsCatalog') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [dataEntities, setDataEntities] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('dataCatalog') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [newSystem, setNewSystem] = useState({id: '', name: ''});
+  const [newData, setNewData] = useState('');
+  const [filterSystem, setFilterSystem] = useState('');
+  const [filterData, setFilterData] = useState('');
 
-  useEffect(()=>{ if(!systems.length){const seed=[{id:'DCS',name:'Departure Control'},{id:'CRM',name:'CRM'},{id:'BHS',name:'Baggage Handling'},{id:'SEC',name:'Security'},{id:'FUEL',name:'Fuel Ops'}]; setSystems(seed); localStorage.setItem('systemsCatalog',JSON.stringify(seed));} if(!dataEntities.length){const d=['Passenger','Booking','BagTag','Flight','Gate']; setDataEntities(d); localStorage.setItem('dataCatalog',JSON.stringify(d));}},[]);
+  useEffect(() => {
+    if (!systems.length) {
+      const seed = [
+        { id: 'DCS', name: 'Departure Control' },
+        { id: 'CRM', name: 'CRM' },
+        { id: 'BHS', name: 'Baggage Handling' },
+        { id: 'SEC', name: 'Security' },
+        { id: 'FUEL', name: 'Fuel Ops' }
+      ];
+      setSystems(seed);
+      localStorage.setItem('systemsCatalog', JSON.stringify(seed));
+    }
+    
+    if (!dataEntities.length) {
+      const d = ['Passenger', 'Booking', 'BagTag', 'Flight', 'Gate', 'Payment'];
+      setDataEntities(d);
+      localStorage.setItem('dataCatalog', JSON.stringify(d));
+    }
+    
+    // This will run once when the component mounts
+    console.log('Systems and data entities initialized');
+  }, []);
 
   const templates=[
     {
-      id:'pusty_proces', 
-      name:'Pusty proces', 
+      id:'empty_process', 
+      name:'Empty Process', 
       xml:`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_${Date.now()}" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" name="Start" />
-    <bpmn:endEvent id="EndEvent_1" name="Koniec" />
+    <bpmn:endEvent id="EndEvent_1" name="End" />
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="EndEvent_1" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -58,41 +96,41 @@ export default function BpmnEditorClean(){
 </bpmn:definitions>`
     },
     {
-      id:'proces_decyzyjny', 
-      name:'Proces z decyzją', 
+      id:'decision_process', 
+      name:'Process with Decision', 
       xml:`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_${Date.now()}" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Początek procesu">
+    <bpmn:startEvent id="StartEvent_1" name="Process Start">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1" name="Analiza danych">
+    <bpmn:task id="Activity_1" name="Data Analysis">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_1" name="Warunek decyzyjny">
+    <bpmn:exclusiveGateway id="Gateway_1" name="Decision Condition">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_2" name="Wykonaj zadanie A">
+    <bpmn:task id="Activity_2" name="Execute Task A">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_3" name="Wykonaj zadanie B">
+    <bpmn:task id="Activity_3" name="Execute Task B">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="EndEvent_1" name="Koniec procesu">
+    <bpmn:endEvent id="EndEvent_1" name="Process End">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:incoming>Flow_6</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Gateway_1" />
-    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="Activity_2" name="Spełniony warunek">
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="Activity_2" name="Condition Met">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">condition == true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Niespełniony warunek">
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Condition Not Met">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">condition == false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_2" targetRef="EndEvent_1" />
@@ -167,37 +205,37 @@ export default function BpmnEditorClean(){
 </bpmn:definitions>`
     },
     {
-      id:'proces_równoległy',
-      name:'Proces z równoległymi ścieżkami',
+      id:'parallel_process',
+      name:'Process with Parallel Paths',
       xml:`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_${Date.now()}" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Początek">
+    <bpmn:startEvent id="StartEvent_1" name="Start">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_0" name="Przygotowanie">
+    <bpmn:task id="Activity_0" name="Preparation">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:parallelGateway id="Gateway_1" name="Rozdzielenie zadań">
+    <bpmn:parallelGateway id="Gateway_1" name="Split Tasks">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:task id="Activity_1" name="Zadanie 1">
+    <bpmn:task id="Activity_1" name="Task 1">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_2" name="Zadanie 2">
+    <bpmn:task id="Activity_2" name="Task 2">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_3" name="Zadanie 3">
+    <bpmn:task id="Activity_3" name="Task 3">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_8</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:parallelGateway id="Gateway_2" name="Połączenie wyników">
+    <bpmn:parallelGateway id="Gateway_2" name="Join Results">
       <bpmn:incoming>Flow_6</bpmn:incoming>
       <bpmn:incoming>Flow_7</bpmn:incoming>
       <bpmn:incoming>Flow_8</bpmn:incoming>
@@ -311,75 +349,75 @@ export default function BpmnEditorClean(){
 </bpmn:definitions>`
     },
     {
-      id:'obsluga_klienta',
-      name:'Proces obsługi klienta',
+      id:'customer_service',
+      name:'Customer Service Process',
       xml:`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_${Date.now()}" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Wpłynięcie zapytania klienta">
+    <bpmn:startEvent id="StartEvent_1" name="Customer Request Received">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1" name="Rejestracja zgłoszenia">
+    <bpmn:task id="Activity_1" name="Register Request">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_2" name="Analiza zgłoszenia">
+    <bpmn:task id="Activity_2" name="Analyze Request">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_1" name="Typ zgłoszenia?">
+    <bpmn:exclusiveGateway id="Gateway_1" name="Request Type?">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_3" name="Rozwiązanie problemu technicznego">
+    <bpmn:task id="Activity_3" name="Solve Technical Problem">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_4" name="Obsługa reklamacji">
+    <bpmn:task id="Activity_4" name="Handle Complaint">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_8</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_5" name="Przygotowanie oferty">
+    <bpmn:task id="Activity_5" name="Prepare Offer">
       <bpmn:incoming>Flow_6</bpmn:incoming>
       <bpmn:outgoing>Flow_9</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_6" name="Kontakt z klientem">
+    <bpmn:task id="Activity_6" name="Contact Customer">
       <bpmn:incoming>Flow_7</bpmn:incoming>
       <bpmn:incoming>Flow_8</bpmn:incoming>
       <bpmn:incoming>Flow_9</bpmn:incoming>
       <bpmn:outgoing>Flow_10</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_2" name="Czy klient zadowolony?">
+    <bpmn:exclusiveGateway id="Gateway_2" name="Is Customer Satisfied?">
       <bpmn:incoming>Flow_10</bpmn:incoming>
       <bpmn:outgoing>Flow_11</bpmn:outgoing>
       <bpmn:outgoing>Flow_12</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_7" name="Zamknięcie zgłoszenia">
+    <bpmn:task id="Activity_7" name="Close Request">
       <bpmn:incoming>Flow_11</bpmn:incoming>
       <bpmn:outgoing>Flow_13</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_8" name="Eskalacja do przełożonego">
+    <bpmn:task id="Activity_8" name="Escalate to Manager">
       <bpmn:incoming>Flow_12</bpmn:incoming>
       <bpmn:outgoing>Flow_14</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="EndEvent_1" name="Zakończenie obsługi">
+    <bpmn:endEvent id="EndEvent_1" name="Service Completed">
       <bpmn:incoming>Flow_13</bpmn:incoming>
       <bpmn:incoming>Flow_14</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Gateway_1" />
-    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Problem techniczny" />
-    <bpmn:sequenceFlow id="Flow_5" sourceRef="Gateway_1" targetRef="Activity_4" name="Reklamacja" />
-    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_1" targetRef="Activity_5" name="Zapytanie o ofertę" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Technical Problem" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Gateway_1" targetRef="Activity_4" name="Complaint" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_1" targetRef="Activity_5" name="Offer Request" />
     <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_3" targetRef="Activity_6" />
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_4" targetRef="Activity_6" />
     <bpmn:sequenceFlow id="Flow_9" sourceRef="Activity_5" targetRef="Activity_6" />
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Activity_6" targetRef="Gateway_2" />
-    <bpmn:sequenceFlow id="Flow_11" sourceRef="Gateway_2" targetRef="Activity_7" name="Tak" />
-    <bpmn:sequenceFlow id="Flow_12" sourceRef="Gateway_2" targetRef="Activity_8" name="Nie" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Gateway_2" targetRef="Activity_7" name="Yes" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Gateway_2" targetRef="Activity_8" name="No" />
     <bpmn:sequenceFlow id="Flow_13" sourceRef="Activity_7" targetRef="EndEvent_1" />
     <bpmn:sequenceFlow id="Flow_14" sourceRef="Activity_8" targetRef="EndEvent_1" />
   </bpmn:process>
@@ -521,54 +559,54 @@ export default function BpmnEditorClean(){
 </bpmn:definitions>`
     },
     {
-      id:'proces_zakupowy',
-      name:'Proces zakupowy',
+      id:'purchasing_process',
+      name:'Purchasing Process',
       xml:`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_${Date.now()}" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Potrzeba zakupu">
+    <bpmn:startEvent id="StartEvent_1" name="Purchase Need">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1" name="Wypełnienie wniosku zakupowego">
+    <bpmn:task id="Activity_1" name="Complete Purchase Request">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
-    <bpmn:task id="Activity_2" name="Zatwierdzenie przez przełożonego">
+    <bpmn:task id="Activity_2" name="Manager Approval">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
-    <bpmn:exclusiveGateway id="Gateway_1" name="Czy zatwierdzono?">
+    <bpmn:exclusiveGateway id="Gateway_1" name="Approved?">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Gateway_1" />
-    <bpmn:task id="Activity_3" name="Realizacja zakupu">
+    <bpmn:task id="Activity_3" name="Process Purchase">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_4" name="Tak" sourceRef="Gateway_1" targetRef="Activity_3">
+    <bpmn:sequenceFlow id="Flow_4" name="Yes" sourceRef="Gateway_1" targetRef="Activity_3">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">approved == true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:endEvent id="EndEvent_1" name="Zakup odrzucony">
+    <bpmn:endEvent id="EndEvent_1" name="Purchase Rejected">
       <bpmn:incoming>Flow_5</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_5" name="Nie" sourceRef="Gateway_1" targetRef="EndEvent_1">
+    <bpmn:sequenceFlow id="Flow_5" name="No" sourceRef="Gateway_1" targetRef="EndEvent_1">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">approved == false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:task id="Activity_4" name="Odbiór zamówienia">
+    <bpmn:task id="Activity_4" name="Receive Order">
       <bpmn:incoming>Flow_6</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_3" targetRef="Activity_4" />
-    <bpmn:task id="Activity_5" name="Rejestracja w systemie">
+    <bpmn:task id="Activity_5" name="Register in System">
       <bpmn:incoming>Flow_7</bpmn:incoming>
       <bpmn:outgoing>Flow_8</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_4" targetRef="Activity_5" />
-    <bpmn:endEvent id="EndEvent_2" name="Zakup zrealizowany">
+    <bpmn:endEvent id="EndEvent_2" name="Purchase Completed">
       <bpmn:incoming>Flow_8</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_5" targetRef="EndEvent_2" />
@@ -656,6 +694,103 @@ export default function BpmnEditorClean(){
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>`
+    },
+    // New template with pre-configured tasks - will be used as default
+    {
+      id:'flight_systems_colored',
+      name:'Flight Systems Example (Colored)',
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Flight Booking">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1" name="Check Availability">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
+    <bpmn:task id="Activity_2" name="Process Payment">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
+    <bpmn:task id="Activity_3" name="Issue Boarding Pass">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Activity_3" />
+    <bpmn:task id="Activity_4" name="Baggage Check-in">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_3" targetRef="Activity_4" />
+    <bpmn:task id="Activity_5" name="Security Screening">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_4" targetRef="Activity_5" />
+    <bpmn:endEvent id="EndEvent_1" name="Boarding Complete">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_5" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="135" y="145" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="560" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4_di" bpmnElement="Activity_4">
+        <dc:Bounds x="720" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_5_di" bpmnElement="Activity_5">
+        <dc:Bounds x="880" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1042" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1017" y="145" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="400" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="500" y="120" />
+        <di:waypoint x="560" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="660" y="120" />
+        <di:waypoint x="720" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="820" y="120" />
+        <di:waypoint x="880" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="980" y="120" />
+        <di:waypoint x="1042" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
     }
   ];
 
@@ -667,7 +802,7 @@ export default function BpmnEditorClean(){
         try { l.lint(); } catch { /* ignore */ }
       }
       
-      // Dla zadań bez nazwy, dodaj czerwone obramowanie
+      // For tasks without a name, add a red border
       const elementRegistry = modelerRef.current.get('elementRegistry');
       const canvas = modelerRef.current.get('canvas');
       
@@ -682,7 +817,7 @@ export default function BpmnEditorClean(){
         }
       });
       
-      // Znajdź problemy i zaznacz je
+      // Find problems and highlight them
       const r = l.getResults ? l.getResults() : (l._currentResult || l._results || null);
       if (!r) return;
       
@@ -712,26 +847,109 @@ export default function BpmnEditorClean(){
       additionalModules: [ lintModule ]
     });
     modelerRef.current = m;
-    const empty = `<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_1" isExecutable="false"/></bpmn:definitions>`;
+    
+    // Find our colored template
+    const coloredTemplate = templates.find(t => t.id === 'flight_systems_colored');
+    const defaultXml = coloredTemplate ? coloredTemplate.xml : `<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_1" isExecutable="false"/></bpmn:definitions>`;
+    
+    // Use either stored diagram or our default colored template
     (async () => {
+      let storedDiagram = localStorage.getItem('diagram');
+      let loadedFromStorage = false;
+      
       try {
-        await m.importXML(localStorage.getItem('diagram') || empty);
-      } catch {
-        await m.importXML(empty);
+        if (storedDiagram) {
+          await m.importXML(storedDiagram);
+          loadedFromStorage = true;
+        } else {
+          // Load our colored template as the default
+          await m.importXML(defaultXml);
+          localStorage.setItem('diagram', defaultXml);
+        }
+      } catch (err) {
+        console.error('Error loading diagram:', err);
+        // Fall back to default template on error
+        try {
+          await m.importXML(defaultXml);
+          localStorage.setItem('diagram', defaultXml);
+        } catch (e) {
+          console.error('Critical error loading diagram:', e);
+        }
       }
+      
       try { m.get('canvas').zoom('fit-viewport'); } catch {}
+      
       // Activate linting overlay (shows badges) if available
       try {
         const linting = m.get('linting');
         if (linting && linting.toggle && !linting._active) linting.toggle();
       } catch {}
+      
       runLint();
+      
+      // If we loaded a new diagram (not from storage), apply system tags
+      if (!loadedFromStorage) {
+        console.log('Loading default example');
+        setTimeout(() => applyDefaultSystemTags(m), 500);
+      }
     })();
     m.on('commandStack.changed', async () => {
       try { const { xml } = await m.saveXML({ format: true }); localStorage.setItem('diagram', xml); } catch {}
       runLint();
     });
     m.on('selection.changed', e => setSelected(e.newSelection?.[0] || null));
+    
+    // Add system tags to tasks for demonstration if none exist
+    setTimeout(() => {
+      try {
+        const elementRegistry = m.get('elementRegistry');
+        const modeling = m.get('modeling');
+        
+        // Find all tasks in the diagram
+        const tasks = elementRegistry.filter(el => 
+          el.type?.includes('Task') || el.businessObject?.$type?.includes('Task')
+        );
+        
+        if (tasks.length > 0) {
+          console.log(`Found ${tasks.length} tasks in the diagram`);
+          
+          // Check if any tasks already have system tags
+          let hasSystemTags = false;
+          tasks.forEach(task => {
+            const tags = task.businessObject?.get('systemTags');
+            if (tags) {
+              hasSystemTags = true;
+              console.log(`Task ${task.id} already has system tags: ${tags}`);
+            }
+          });
+          
+          // If no tasks have system tags, add them to the first two tasks
+          if (!hasSystemTags && systems.length >= 2) {
+            console.log('Adding example system tags to tasks');
+            
+            // Add first system tag to first task
+            if (tasks[0]) {
+              modeling.updateProperties(tasks[0], {
+                systemTags: systems[0].id
+              });
+              console.log(`Added ${systems[0].id} tag to ${tasks[0].id}`);
+            }
+            
+            // Add second system tag to second task if exists
+            if (tasks.length > 1 && systems.length > 1) {
+              modeling.updateProperties(tasks[1], {
+                systemTags: systems[1].id
+              });
+              console.log(`Added ${systems[1].id} tag to ${tasks[1].id}`);
+            }
+            
+            // Colorize mode has been removed
+          }
+        }
+      } catch (err) {
+        console.error('Error adding example system tags:', err);
+      }
+    }, 1500); // Wait for diagram to fully load
   }, [runLint]);
 
   const save=async()=>{try{const {xml}=await modelerRef.current.saveXML({format:true}); let base=fileName.trim()||'diagram'; if(!/\.(bpmn|xml)$/i.test(base)) base+='.bpmn'; const blob=new Blob([xml],{type:'application/xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=base; a.click(); URL.revokeObjectURL(url);}catch{alert('Save failed')}};
@@ -760,14 +978,45 @@ export default function BpmnEditorClean(){
       localStorage.setItem('diagram', empty);
       setFileName('diagram');
       runLint();
-      console.log("Nowy diagram utworzony pomyślnie");
+      console.log("New diagram created successfully");
     } catch(error) {
-      console.error("Błąd tworzenia nowego diagramu:", error);
-      alert('Tworzenie nowego diagramu nie powiodło się');
+      console.error("Error creating new diagram:", error);
+      alert('Failed to create new diagram');
     }
   };
-  const undo=()=>{try{modelerRef.current.get('commandStack').undo();}catch{}}; const redo=()=>{try{modelerRef.current.get('commandStack').redo();}catch{}};
-  const zin=()=>{try{const c=modelerRef.current.get('canvas'); const z=Number(c.zoom())||1; c.zoom(z*1.1);}catch{}}; const zout=()=>{try{const c=modelerRef.current.get('canvas'); const z=Number(c.zoom())||1; c.zoom(Math.max(z/1.1,0.2));}catch{}}; const resetView=()=>{try{modelerRef.current.get('canvas').zoom('fit-viewport');}catch{}};
+  const undo = () => {
+    try {
+      modelerRef.current.get('commandStack').undo();
+    } catch {}
+  };
+  
+  const redo = () => {
+    try {
+      modelerRef.current.get('commandStack').redo();
+    } catch {}
+  };
+  
+  const zin = () => {
+    try {
+      const c = modelerRef.current.get('canvas');
+      const z = Number(c.zoom()) || 1;
+      c.zoom(z * 1.1);
+    } catch {}
+  };
+  
+  const zout = () => {
+    try {
+      const c = modelerRef.current.get('canvas');
+      const z = Number(c.zoom()) || 1;
+      c.zoom(Math.max(z / 1.1, 0.2));
+    } catch {}
+  };
+  
+  const resetView = () => {
+    try {
+      modelerRef.current.get('canvas').zoom('fit-viewport');
+    } catch {}
+  };
 
   const getTags = (kind) => {
     if (!selected) return [];
@@ -784,9 +1033,89 @@ export default function BpmnEditorClean(){
     bo.set(`${kind}Tags`, next.join(','));
     try { modelerRef.current.get('modeling').updateProperties(selected, {}); } catch {}
   };
-  const addSystem=()=>{ if(!newSystem.id.trim())return; const upd=[...systems.filter(s=>s.id!==newSystem.id.trim()),{id:newSystem.id.trim(),name:newSystem.name.trim()||newSystem.id.trim()}]; setSystems(upd); localStorage.setItem('systemsCatalog',JSON.stringify(upd)); setNewSystem({id:'',name:''}); };
+  
+  // Function to apply system tags to our default example
+  const applyDefaultSystemTags = (modeler) => {
+    try {
+      console.log('Applying default system tags to example diagram tasks');
+      const elementRegistry = modeler.get('elementRegistry');
+      const modeling = modeler.get('modeling');
+      
+      // Map task IDs to specific systems based on their functionality
+      const taskSystemMapping = {
+        'Activity_1': 'CRM',      // Check Availability - Customer Relationship Management
+        'Activity_2': 'DCS',      // Process Payment - Departure Control
+        'Activity_3': 'DCS',      // Issue Boarding Pass - Departure Control
+        'Activity_4': 'BHS',      // Baggage Check-in - Baggage Handling
+        'Activity_5': 'SEC'       // Security Screening - Security
+      };
+      
+      // Apply the mappings
+      Object.entries(taskSystemMapping).forEach(([taskId, systemId]) => {
+        const taskElement = elementRegistry.get(taskId);
+        if (taskElement) {
+          console.log(`Adding ${systemId} system tag to ${taskId}`);
+          modeling.updateProperties(taskElement, {
+            systemTags: systemId
+          });
+        }
+      });
+      
+      // Add some data tags as well for completeness
+      const taskDataMapping = {
+        'Activity_1': 'Booking',
+        'Activity_2': 'Payment',
+        'Activity_3': 'Passenger',
+        'Activity_4': 'BagTag',
+        'Activity_5': 'Passenger'
+      };
+      
+      Object.entries(taskDataMapping).forEach(([taskId, dataId]) => {
+        const taskElement = elementRegistry.get(taskId);
+        if (taskElement && dataEntities.includes(dataId)) {
+          console.log(`Adding ${dataId} data tag to ${taskId}`);
+          modeling.updateProperties(taskElement, {
+            dataTags: dataId
+          });
+        }
+      });
+      
+      console.log('Default system and data tags applied successfully');
+      
+      // Colorize feature has been removed
+      
+    } catch (err) {
+      console.error('Error applying default system tags:', err);
+    }
+  };
+  const addSystem = () => { 
+    if (!newSystem.id.trim()) return; 
+    
+    const upd = [
+      ...systems.filter(s => s.id !== newSystem.id.trim()),
+      {
+        id: newSystem.id.trim(), 
+        name: newSystem.name.trim() || newSystem.id.trim()
+      }
+    ]; 
+    
+    setSystems(upd); 
+    localStorage.setItem('systemsCatalog', JSON.stringify(upd)); 
+    setNewSystem({id: '', name: ''}); 
+  };
   const remSystem=id=>{ const upd=systems.filter(s=>s.id!==id); setSystems(upd); localStorage.setItem('systemsCatalog',JSON.stringify(upd)); };
-  const addData=()=>{ const v=newData.trim(); if(!v)return; if(!dataEntities.includes(v)){ const upd=[...dataEntities,v]; setDataEntities(upd); localStorage.setItem('dataCatalog',JSON.stringify(upd)); } setNewData(''); };
+  const addData = () => { 
+    const v = newData.trim(); 
+    if (!v) return; 
+    
+    if (!dataEntities.includes(v)) { 
+      const upd = [...dataEntities, v]; 
+      setDataEntities(upd); 
+      localStorage.setItem('dataCatalog', JSON.stringify(upd)); 
+    } 
+    
+    setNewData(''); 
+  };
   const remData=id=>{ const upd=dataEntities.filter(d=>d!==id); setDataEntities(upd); localStorage.setItem('dataCatalog',JSON.stringify(upd)); };
   const loadTemplate = async t => { 
     if(!t) return; 
@@ -805,7 +1134,7 @@ export default function BpmnEditorClean(){
     }
   };
   
-  // Dodajmy funkcje do debugowania
+  // Let's add debugging functions
   const toggleTemplates = () => {
     console.log('Toggle Templates clicked');
     setShowTemplates(prev => {
@@ -833,52 +1162,131 @@ export default function BpmnEditorClean(){
     });
   };
 
-  const exportSVG=async()=>{ try{ const {svg}=await modelerRef.current.saveSVG(); const blob=new Blob([svg],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${fileName}.svg`; a.click(); URL.revokeObjectURL(url);}catch{alert('SVG export failed')}};
-  const exportPNG=async()=>{ try{ const {svg}=await modelerRef.current.saveSVG(); const c=document.createElement('canvas'); const ctx=c.getContext('2d'); const v=await Canvg.from(ctx,svg); await v.render(); c.toBlob(b=>{ if(!b)return; const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download=`${fileName}.png`; a.click(); URL.revokeObjectURL(url); });}catch{alert('PNG export failed')}};
-  const exportPDF=async()=>{ try{ const {svg}=await modelerRef.current.saveSVG(); const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'}); const c=document.createElement('canvas'); const ctx=c.getContext('2d'); const v=await Canvg.from(ctx,svg); await v.render(); const img=c.toDataURL('image/png'); pdf.addImage(img,'PNG',20,20,pdf.internal.pageSize.getWidth()-40,pdf.internal.pageSize.getHeight()-40); pdf.save(`${fileName}.pdf`);}catch{alert('PDF export failed')}};
-  const exportCSV=()=>{ try{ const reg=modelerRef.current.get('elementRegistry'); const rows=['id;name;systems;data']; reg.getAll().forEach(el=>{ const bo=el.businessObject; if(bo&&/Task$/.test(bo.$type)){ rows.push(`${bo.id};${(bo.name||'').replace(/;/g,',')};${bo.get('systemTags')||''};${bo.get('dataTags')||''}`); }}); const blob=new Blob([rows.join('\n')],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${fileName}_report.csv`; a.click(); URL.revokeObjectURL(url);}catch{alert('CSV export failed')}};
-  const focus=id=>{ try{const el=modelerRef.current.get('elementRegistry').get(id); if(el){modelerRef.current.get('selection').select(el); modelerRef.current.get('canvas').scrollToElement(el);} }catch{} };
+  const exportSVG = async () => { 
+    try { 
+      const { svg } = await modelerRef.current.saveSVG(); 
+      const blob = new Blob([svg], { type: 'image/svg+xml' }); 
+      const url = URL.createObjectURL(blob); 
+      const a = document.createElement('a'); 
+      a.href = url; 
+      a.download = `${fileName}.svg`; 
+      a.click(); 
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('SVG export failed');
+    }
+  };
+  const exportPNG = async () => { 
+    try { 
+      const { svg } = await modelerRef.current.saveSVG(); 
+      const c = document.createElement('canvas'); 
+      const ctx = c.getContext('2d'); 
+      const v = await Canvg.from(ctx, svg); 
+      await v.render(); 
+      c.toBlob(b => { 
+        if (!b) return; 
+        const url = URL.createObjectURL(b); 
+        const a = document.createElement('a'); 
+        a.href = url; 
+        a.download = `${fileName}.png`; 
+        a.click(); 
+        URL.revokeObjectURL(url); 
+      });
+    } catch {
+      alert('PNG export failed');
+    }
+  };
+  const exportPDF = async () => { 
+    try { 
+      const { svg } = await modelerRef.current.saveSVG(); 
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'pt',
+        format: 'a4'
+      }); 
+      const c = document.createElement('canvas'); 
+      const ctx = c.getContext('2d'); 
+      const v = await Canvg.from(ctx, svg); 
+      await v.render(); 
+      const img = c.toDataURL('image/png'); 
+      pdf.addImage(
+        img,
+        'PNG',
+        20,
+        20,
+        pdf.internal.pageSize.getWidth() - 40,
+        pdf.internal.pageSize.getHeight() - 40
+      ); 
+      pdf.save(`${fileName}.pdf`);
+    } catch {
+      alert('PDF export failed');
+    }
+  };
+  const exportCSV = () => { 
+    try { 
+      const reg = modelerRef.current.get('elementRegistry'); 
+      const rows = ['id;name;systems;data']; 
+      
+      reg.getAll().forEach(el => { 
+        const bo = el.businessObject; 
+        if (bo && /Task$/.test(bo.$type)) { 
+          rows.push(`${bo.id};${(bo.name || '').replace(/;/g, ',')};${bo.get('systemTags') || ''};${bo.get('dataTags') || ''}`); 
+        }
+      }); 
+      
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' }); 
+      const url = URL.createObjectURL(blob); 
+      const a = document.createElement('a'); 
+      a.href = url; 
+      a.download = `${fileName}_report.csv`; 
+      a.click(); 
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('CSV export failed');
+    }
+  };
+  
+  const focus = id => { 
+    try {
+      const el = modelerRef.current.get('elementRegistry').get(id); 
+      if (el) {
+        modelerRef.current.get('selection').select(el); 
+        modelerRef.current.get('canvas').scrollToElement(el);
+      } 
+    } catch {} 
+  };
 
+  // Function to apply filtering to diagram elements based on system/data tags
+  // Apply filtering for system and data tags
   useEffect(() => {
     if (!modelerRef.current) return;
+    
     const reg = modelerRef.current.get('elementRegistry');
     const canvas = modelerRef.current.get('canvas');
-  // Build color index map for systems so stroke color stable
-  const colorIndex = new Map();
-  systems.forEach((s,i)=>colorIndex.set(s.id, i % 10));
+    
+    // Apply filtering to all task elements
     reg.getAll().forEach(el => {
       const bo = el.businessObject;
       if (!bo) return;
       if (!/Task$/.test(bo.$type)) return;
+      
       const gfx = canvas.getGraphics(el.id);
       if (!gfx) return;
-      const st = (bo.get('systemTags') || '').split(',').map(s=>s.trim()).filter(Boolean);
-      const dt = (bo.get('dataTags') || '').split(',').map(s=>s.trim()).filter(Boolean);
+      
+      // Get system and data tags
+      const st = (bo.get('systemTags') || '').split(',').map(s => s.trim()).filter(Boolean);
+      const dt = (bo.get('dataTags') || '').split(',').map(s => s.trim()).filter(Boolean);
+      
+      // Apply filtering
       const okS = !filterSystem || st.includes(filterSystem);
       const okD = !filterData || dt.includes(filterData);
       gfx.style.display = (okS && okD) ? '' : 'none';
-      if (colorize) {
-        const first = st[0];
-        if (first) {
-          const colorIdx = colorIndex.get(first) ?? 0;
-          gfx.setAttribute('data-system-color', String(colorIdx));
-          gfx.style.stroke = `var(--system-color-${colorIdx})`;
-          gfx.style.strokeWidth = '2px';
-        } else {
-          gfx.removeAttribute('data-system-color');
-          gfx.style.stroke = '';
-          gfx.style.strokeWidth = '';
-        }
-      } else {
-        gfx.removeAttribute('data-system-color');
-        gfx.style.stroke = '';
-        gfx.style.strokeWidth = '';
-      }
     });
-  }, [filterSystem, filterData, colorize, selected, systems, dataEntities]);
+  }, [filterSystem, filterData, selected, systems, dataEntities]);
 
   const H=60;
-  return (<div className="h-screen w-full overflow-auto flex flex-col bg-gradient-to-br from-slate-50 to-white">
+  return (
+    <div className="h-screen w-full overflow-auto flex flex-col bg-gradient-to-br from-slate-50 to-white">
     <div className="sticky top-0 left-0 right-0 h-[60px] flex items-center flex-wrap gap-2 px-4 z-[9000] bg-gradient-to-r from-slate-800 to-slate-700 backdrop-blur border-b border-blue-500/30 shadow-xl">
       <div className="flex items-center gap-2">
         <button onClick={newDiagram} className="btn btn-secondary flex items-center gap-1 bg-white" title="New">
@@ -941,11 +1349,9 @@ export default function BpmnEditorClean(){
         </div>
       
         <div className="flex items-center gap-2 ml-2">
-          <button onClick={() => setColorize(!colorize)} className="btn bg-white text-gray-700 border border-gray-300 flex items-center" title="Colorize">
-            <span className="text-base mr-1">🎨</span>
-            <span>Colorize</span>
-            <div className={`ml-2 w-4 h-4 rounded-full ${colorize ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-          </button>
+          <div className="flex flex-col">
+            {/* Colorize button removed */}
+          </div>
           
           <button onClick={runLint} className="btn bg-white text-gray-700 border border-gray-300 flex items-center" title="Validate">
             <span className="mr-1">✔</span>
@@ -1001,11 +1407,11 @@ export default function BpmnEditorClean(){
         <div className="modal-backdrop" onClick={toggleTemplates}></div>
         <div className="modal-container templates-modal">
           <div className="modal-header">
-            <h2>Szablony procesów</h2>
+            <h2>Process Templates</h2>
             <button onClick={toggleTemplates} className="modal-close-btn">×</button>
           </div>
           <div className="modal-body">
-            <p className="mb-3 text-gray-600 text-sm">Wybierz jeden z gotowych szablonów procesów aby rozpocząć modelowanie:</p>
+            <p className="mb-3 text-gray-600 text-sm">Choose one of the ready-made process templates to start modeling:</p>
             {templates.map(t=>(
               <div key={t.id} onClick={()=>loadTemplate(t)} className="template-item">
                 <div className="template-name">{t.name}</div>
@@ -1014,7 +1420,7 @@ export default function BpmnEditorClean(){
             ))}
           </div>
           <div className="modal-footer">
-            <small>Wybrany szablon zastąpi aktualny diagram. Upewnij się, że zapisałeś bieżącą pracę.</small>
+            <small>The selected template will replace the current diagram. Make sure you have saved your current work.</small>
           </div>
         </div>
       </>
@@ -1026,45 +1432,45 @@ export default function BpmnEditorClean(){
         <div className="modal-backdrop" onClick={toggleCatalog}></div>
         <div className="modal-container catalog-modal">
           <div className="modal-header">
-            <h2>Katalog systemów i encji danych</h2>
+            <h2>Systems and Data Entities Catalog</h2>
             <button onClick={toggleCatalog} className="modal-close-btn">×</button>
           </div>
           <div className="modal-body">
             <section className="catalog-section">
-              <h4 className="catalog-section-title">Systemy</h4>
+              <h4 className="catalog-section-title">Systems</h4>
               <div className="input-group">
                 <input value={newSystem.id} onChange={e=>setNewSystem(s=>({...s,id:e.target.value}))} 
                        placeholder="Identyfikator" className="input-field w-24"/>
                 <input value={newSystem.name} onChange={e=>setNewSystem(s=>({...s,name:e.target.value}))} 
                        placeholder="Nazwa systemu" className="input-field flex-1"/>
-                <button onClick={addSystem} className="btn btn-blue">Dodaj</button>
+                <button onClick={addSystem} className="btn btn-blue">Add</button>
               </div>
               <div className="tag-container">
                 {systems.map(s=>(
                   <div key={s.id} className="tag">
                     <span>{s.id}</span>
-                    <span className="tag-remove" onClick={()=>remSystem(s.id)} title="Usuń">×</span>
+                    <span className="tag-remove" onClick={()=>remSystem(s.id)} title="Remove">×</span>
                   </div>
                 ))}
-                {!systems.length && <div className="empty-placeholder">Brak zdefiniowanych systemów</div>}
+                {!systems.length && <div className="empty-placeholder">No defined systems</div>}
               </div>
             </section>
             
             <section className="catalog-section">
-              <h4 className="catalog-section-title">Encje danych</h4>
+              <h4 className="catalog-section-title">Data Entities</h4>
               <div className="input-group">
                 <input value={newData} onChange={e=>setNewData(e.target.value)} 
-                       placeholder="Nazwa encji danych" className="input-field flex-1"/>
-                <button onClick={addData} className="btn btn-blue">Dodaj</button>
+                       placeholder="Data entity name" className="input-field flex-1"/>
+                <button onClick={addData} className="btn btn-blue">Add</button>
               </div>
               <div className="tag-container">
                 {dataEntities.map(d=>(
                   <div key={d} className="tag">
                     <span>{d}</span>
-                    <span className="tag-remove" onClick={()=>remData(d)} title="Usuń">×</span>
+                    <span className="tag-remove" onClick={()=>remData(d)} title="Remove">×</span>
                   </div>
                 ))}
-                {!dataEntities.length && <div className="empty-placeholder">Brak zdefiniowanych encji danych</div>}
+                {!dataEntities.length && <div className="empty-placeholder">No defined data entities</div>}
               </div>
             </section>
             
@@ -1073,7 +1479,7 @@ export default function BpmnEditorClean(){
                 <h4 className="catalog-section-title">Tagowanie wybranego elementu</h4>
                 <div className="task-tagging-section">
                   <div className="mb-3">
-                    <div className="text-xs font-semibold mb-1 text-gray-700">Systemy powiązane z zadaniem:</div>
+                    <div className="text-xs font-semibold mb-1 text-gray-700">Systems linked to task:</div>
                     <div className="tag-selection">
                       {systems.map(s=>{
                         const active=getTags('system').includes(s.id);
@@ -1084,11 +1490,11 @@ export default function BpmnEditorClean(){
                           </button>
                         );
                       })}
-                      {!systems.length && <span className="text-gray-400">Brak systemów</span>}
+                      {!systems.length && <span className="text-gray-400">No systems</span>}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold mb-1 text-gray-700">Encje danych powiązane z zadaniem:</div>
+                    <div className="text-xs font-semibold mb-1 text-gray-700">Data entities linked to task:</div>
                     <div className="tag-selection">
                       {dataEntities.map(d=>{
                         const active=getTags('data').includes(d);
@@ -1099,17 +1505,17 @@ export default function BpmnEditorClean(){
                           </button>
                         );
                       })}
-                      {!dataEntities.length && <span className="text-gray-400">Brak encji danych</span>}
+                      {!dataEntities.length && <span className="text-gray-400">No data entities</span>}
                     </div>
                   </div>
                 </div>
                 <div className="info-box mt-2">
-                  Oznaczanie zadań systemami i danymi pozwala na analizę przepływów informacji między systemami oraz identyfikację przetwarzanych danych.
+                  Marking tasks with systems and data allows for analysis of information flow between systems and identification of processed data.
                 </div>
               </section>
             ) : (
               <div className="empty-placeholder mt-4">
-                Wybierz zadanie (Task) w diagramie, aby przypisać mu tagi systemów i danych.
+                Select a task in the diagram to assign system and data tags.
               </div>
             )}
           </div>
@@ -1123,17 +1529,17 @@ export default function BpmnEditorClean(){
         <div className="modal-backdrop" onClick={toggleSaveOptions}></div>
         <div className="modal-container save-options-modal">
           <div className="modal-header">
-            <h2>Zapisz diagram</h2>
+            <h2>Save diagram</h2>
             <button onClick={toggleSaveOptions} className="modal-close-btn">×</button>
           </div>
           <div className="px-6 py-4 bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100">
-            <label className="block text-sm font-medium text-emerald-700 mb-2">Nazwa pliku:</label>
+            <label className="block text-sm font-medium text-emerald-700 mb-2">File name:</label>
             <div className="relative">
               <input 
                 value={fileName} 
                 onChange={e=>setFileName(e.target.value)} 
                 className="w-full px-4 py-3 border border-emerald-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all pl-10" 
-                placeholder="Nazwa pliku" 
+                placeholder="File name" 
               />
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -1152,7 +1558,7 @@ export default function BpmnEditorClean(){
               </div>
               <div className="save-option-content">
                 <div className="save-option-title">BPMN (.bpmn)</div>
-                <div className="save-option-desc">Standardowy format XML dla diagramów procesów biznesowych</div>
+                <div className="save-option-desc">Standard XML format for business process diagrams</div>
               </div>
             </div>
             
@@ -1164,7 +1570,7 @@ export default function BpmnEditorClean(){
               </div>
               <div className="save-option-content">
                 <div className="save-option-title">SVG (.svg)</div>
-                <div className="save-option-desc">Wektorowy format graficzny, idealny do umieszczenia w dokumentacji</div>
+                <div className="save-option-desc">Vector graphic format, ideal for embedding in documentation</div>
               </div>
             </div>
             
@@ -1176,7 +1582,7 @@ export default function BpmnEditorClean(){
               </div>
               <div className="save-option-content">
                 <div className="save-option-title">PNG (.png)</div>
-                <div className="save-option-desc">Rastrowy format graficzny z przezroczystością</div>
+                <div className="save-option-desc">Raster graphic format with transparency</div>
               </div>
             </div>
             
@@ -1188,7 +1594,7 @@ export default function BpmnEditorClean(){
               </div>
               <div className="save-option-content">
                 <div className="save-option-title">PDF (.pdf)</div>
-                <div className="save-option-desc">Format dokumentu, dobry do drukowania i udostępniania</div>
+                <div className="save-option-desc">Document format, good for printing and sharing</div>
               </div>
             </div>
             
@@ -1199,14 +1605,14 @@ export default function BpmnEditorClean(){
                 </svg>
               </div>
               <div className="save-option-content">
-                <div className="save-option-title">Raport CSV (.csv)</div>
-                <div className="save-option-desc">Eksport zadań i ich tagów do pliku CSV</div>
+                <div className="save-option-title">CSV Report (.csv)</div>
+                <div className="save-option-desc">Export tasks and their tags to a CSV file</div>
               </div>
             </div>
           </div>
           <div className="modal-footer flex justify-between items-center">
-            <small>Pliki zostaną zapisane z podaną nazwą i odpowiednim rozszerzeniem</small>
-            <button onClick={toggleSaveOptions} className="btn-secondary text-sm px-3 py-1">Anuluj</button>
+            <small>Files will be saved with the specified name and appropriate extension</small>
+            <button onClick={toggleSaveOptions} className="btn-secondary text-sm px-3 py-1">Cancel</button>
           </div>
         </div>
       </>
