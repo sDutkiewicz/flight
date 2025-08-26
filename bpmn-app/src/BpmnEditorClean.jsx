@@ -13,7 +13,6 @@ import './bpmn-custom.css';
 export default function BpmnEditorClean(){
   const containerRef=useRef(null); const modelerRef=useRef(null); const fileRef=useRef(null);
   const [fileName,setFileName]=useState('diagram');
-  const [issues,setIssues]=useState([]); const [showIssues,setShowIssues]=useState(false);
   const [showTemplates,setShowTemplates]=useState(false); const [showCatalog,setShowCatalog]=useState(false);
   const [showSaveOptions,setShowSaveOptions]=useState(false);
   const [drag,setDrag]=useState(false); const [selected,setSelected]=useState(null);
@@ -26,9 +25,638 @@ export default function BpmnEditorClean(){
   useEffect(()=>{ if(!systems.length){const seed=[{id:'DCS',name:'Departure Control'},{id:'CRM',name:'CRM'},{id:'BHS',name:'Baggage Handling'},{id:'SEC',name:'Security'},{id:'FUEL',name:'Fuel Ops'}]; setSystems(seed); localStorage.setItem('systemsCatalog',JSON.stringify(seed));} if(!dataEntities.length){const d=['Passenger','Booking','BagTag','Flight','Gate']; setDataEntities(d); localStorage.setItem('dataCatalog',JSON.stringify(d));}},[]);
 
   const templates=[
-    {id:'checkin',name:'Check-in',xml:`<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="CheckIn" isExecutable="false"><bpmn:startEvent id="Start" name="Start"/><bpmn:task id="T1" name="Select Flight"/><bpmn:task id="T2" name="Provide Docs"/><bpmn:endEvent id="End" name="End"/><bpmn:sequenceFlow id="f1" sourceRef="Start" targetRef="T1"/><bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="T2"/><bpmn:sequenceFlow id="f3" sourceRef="T2" targetRef="End"/></bpmn:process></bpmn:definitions>`},
-    {id:'security',name:'Security Flow',xml:`<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Security" isExecutable="false"><bpmn:startEvent id="S1" name="Arrival"/><bpmn:task id="BagScan" name="Bag Scan"/><bpmn:exclusiveGateway id="G1" name="Clear?"/><bpmn:task id="Manual" name="Manual Inspection"/><bpmn:endEvent id="Done" name="Cleared"/><bpmn:sequenceFlow id="sf1" sourceRef="S1" targetRef="BagScan"/><bpmn:sequenceFlow id="sf2" sourceRef="BagScan" targetRef="G1"/><bpmn:sequenceFlow id="sf3" sourceRef="G1" targetRef="Done"/><bpmn:sequenceFlow id="sf4" sourceRef="G1" targetRef="Manual"/><bpmn:sequenceFlow id="sf5" sourceRef="Manual" targetRef="Done"/></bpmn:process></bpmn:definitions>`},
-    {id:'skeleton',name:'Empty Skeleton',xml:`<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_${Date.now()}" isExecutable="false"><bpmn:startEvent id="StartEvent_1"/><bpmn:endEvent id="EndEvent_1"/><bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="EndEvent_1"/></bpmn:process></bpmn:definitions>`}
+    {
+      id:'pusty_proces', 
+      name:'Pusty proces', 
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Start" />
+    <bpmn:endEvent id="EndEvent_1" name="Koniec" />
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="155" y="145" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="562" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="560" y="145" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="562" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    },
+    {
+      id:'proces_decyzyjny', 
+      name:'Proces z decyzją', 
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Początek procesu">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1" name="Analiza danych">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_1" name="Warunek decyzyjny">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_2" name="Wykonaj zadanie A">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_3" name="Wykonaj zadanie B">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Koniec procesu">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="Activity_2" name="Spełniony warunek">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">condition == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Niespełniony warunek">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">condition == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_2" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_3" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="129" y="145" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <dc:Bounds x="395" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="395" y="65" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="500" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="500" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="652" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="631" y="175" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="395" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="445" y="120" />
+        <di:waypoint x="500" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="442" y="102" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="420" y="145" />
+        <di:waypoint x="420" y="230" />
+        <di:waypoint x="500" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="431" y="205" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="600" y="120" />
+        <di:waypoint x="626" y="120" />
+        <di:waypoint x="626" y="150" />
+        <di:waypoint x="652" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="600" y="230" />
+        <di:waypoint x="626" y="230" />
+        <di:waypoint x="626" y="150" />
+        <di:waypoint x="652" y="150" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    },
+    {
+      id:'proces_równoległy',
+      name:'Proces z równoległymi ścieżkami',
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Początek">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_0" name="Przygotowanie">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_1" name="Rozdzielenie zadań">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Activity_1" name="Zadanie 1">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_2" name="Zadanie 2">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_3" name="Zadanie 3">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_2" name="Połączenie wyników">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Activity_4" name="Podsumowanie">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Koniec">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_0" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_0" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="Activity_1" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_2" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Gateway_1" targetRef="Activity_3" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_1" targetRef="Gateway_2" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_2" targetRef="Gateway_2" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_3" targetRef="Gateway_2" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Gateway_2" targetRef="Activity_4" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Activity_4" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="148" y="245" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0_di" bpmnElement="Activity_0">
+        <dc:Bounds x="240" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1">
+        <dc:Bounds x="395" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="375" y="165" width="91" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="500" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="500" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="500" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_2_di" bpmnElement="Gateway_2">
+        <dc:Bounds x="655" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="638" y="165" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4_di" bpmnElement="Activity_4">
+        <dc:Bounds x="760" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="912" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="911" y="245" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="220" />
+        <di:waypoint x="240" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="220" />
+        <di:waypoint x="395" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="420" y="195" />
+        <di:waypoint x="420" y="120" />
+        <di:waypoint x="500" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="445" y="220" />
+        <di:waypoint x="500" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="420" y="245" />
+        <di:waypoint x="420" y="320" />
+        <di:waypoint x="500" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="600" y="120" />
+        <di:waypoint x="680" y="120" />
+        <di:waypoint x="680" y="195" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="600" y="220" />
+        <di:waypoint x="655" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="600" y="320" />
+        <di:waypoint x="680" y="320" />
+        <di:waypoint x="680" y="245" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="705" y="220" />
+        <di:waypoint x="760" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="860" y="220" />
+        <di:waypoint x="912" y="220" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    },
+    {
+      id:'obsluga_klienta',
+      name:'Proces obsługi klienta',
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Wpłynięcie zapytania klienta">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1" name="Rejestracja zgłoszenia">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_2" name="Analiza zgłoszenia">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_1" name="Typ zgłoszenia?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_3" name="Rozwiązanie problemu technicznego">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_4" name="Obsługa reklamacji">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_5" name="Przygotowanie oferty">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_6" name="Kontakt z klientem">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_2" name="Czy klient zadowolony?">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_7" name="Zamknięcie zgłoszenia">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_8" name="Eskalacja do przełożonego">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Zakończenie obsługi">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Gateway_1" targetRef="Activity_3" name="Problem techniczny" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Gateway_1" targetRef="Activity_4" name="Reklamacja" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_1" targetRef="Activity_5" name="Zapytanie o ofertę" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_3" targetRef="Activity_6" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_4" targetRef="Activity_6" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Activity_5" targetRef="Activity_6" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Activity_6" targetRef="Gateway_2" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Gateway_2" targetRef="Activity_7" name="Tak" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Gateway_2" targetRef="Activity_8" name="Nie" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Activity_7" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Activity_8" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="137" y="202" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="240" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="400" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <dc:Bounds x="565" y="152" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="556" y="122" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="670" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4_di" bpmnElement="Activity_4">
+        <dc:Bounds x="670" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_5_di" bpmnElement="Activity_5">
+        <dc:Bounds x="670" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_6_di" bpmnElement="Activity_6">
+        <dc:Bounds x="830" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_2_di" bpmnElement="Gateway_2" isMarkerVisible="true">
+        <dc:Bounds x="995" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="976" y="175" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_7_di" bpmnElement="Activity_7">
+        <dc:Bounds x="1100" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_8_di" bpmnElement="Activity_8">
+        <dc:Bounds x="1100" y="247" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1262" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1240" y="255" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="177" />
+        <di:waypoint x="240" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="177" />
+        <di:waypoint x="400" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="500" y="177" />
+        <di:waypoint x="565" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="590" y="152" />
+        <di:waypoint x="590" y="120" />
+        <di:waypoint x="670" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="558" y="102" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="615" y="177" />
+        <di:waypoint x="642" y="177" />
+        <di:waypoint x="642" y="230" />
+        <di:waypoint x="670" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="625" y="198" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="590" y="202" />
+        <di:waypoint x="590" y="340" />
+        <di:waypoint x="670" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="601" y="323" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="770" y="120" />
+        <di:waypoint x="880" y="120" />
+        <di:waypoint x="880" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="770" y="230" />
+        <di:waypoint x="830" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="770" y="340" />
+        <di:waypoint x="880" y="340" />
+        <di:waypoint x="880" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="930" y="230" />
+        <di:waypoint x="995" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1020" y="205" />
+        <di:waypoint x="1020" y="177" />
+        <di:waypoint x="1100" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1026" y="188" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1020" y="255" />
+        <di:waypoint x="1020" y="287" />
+        <di:waypoint x="1100" y="287" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1025" y="269" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1200" y="177" />
+        <di:waypoint x="1231" y="177" />
+        <di:waypoint x="1231" y="230" />
+        <di:waypoint x="1262" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="1200" y="287" />
+        <di:waypoint x="1231" y="287" />
+        <di:waypoint x="1231" y="230" />
+        <di:waypoint x="1262" y="230" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    },
+    {
+      id:'proces_zakupowy',
+      name:'Proces zakupowy',
+      xml:`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_${Date.now()}" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_${Date.now()}" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Potrzeba zakupu">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1" name="Wypełnienie wniosku zakupowego">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
+    <bpmn:task id="Activity_2" name="Zatwierdzenie przez przełożonego">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
+    <bpmn:exclusiveGateway id="Gateway_1" name="Czy zatwierdzono?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Gateway_1" />
+    <bpmn:task id="Activity_3" name="Realizacja zakupu">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_4" name="Tak" sourceRef="Gateway_1" targetRef="Activity_3">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">approved == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_1" name="Zakup odrzucony">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_5" name="Nie" sourceRef="Gateway_1" targetRef="EndEvent_1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">approved == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:task id="Activity_4" name="Odbiór zamówienia">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_3" targetRef="Activity_4" />
+    <bpmn:task id="Activity_5" name="Rejestracja w systemie">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_4" targetRef="Activity_5" />
+    <bpmn:endEvent id="EndEvent_2" name="Zakup zrealizowany">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_5" targetRef="EndEvent_2" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${Date.now()}">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="131" y="145" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <dc:Bounds x="555" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="536" y="65" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="660" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="662" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="637" y="255" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4_di" bpmnElement="Activity_4">
+        <dc:Bounds x="820" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_5_di" bpmnElement="Activity_5">
+        <dc:Bounds x="980" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_2_di" bpmnElement="EndEvent_2">
+        <dc:Bounds x="1142" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1124" y="145" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="400" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="500" y="120" />
+        <di:waypoint x="555" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="605" y="120" />
+        <di:waypoint x="660" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="624" y="102" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="580" y="145" />
+        <di:waypoint x="580" y="230" />
+        <di:waypoint x="662" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="586" y="185" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="760" y="120" />
+        <di:waypoint x="820" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="920" y="120" />
+        <di:waypoint x="980" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="1080" y="120" />
+        <di:waypoint x="1142" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    }
   ];
 
   const runLint = useCallback(() => {
@@ -38,16 +666,42 @@ export default function BpmnEditorClean(){
       if (typeof l.lint === 'function') {
         try { l.lint(); } catch { /* ignore */ }
       }
+      
+      // Dla zadań bez nazwy, dodaj czerwone obramowanie
+      const elementRegistry = modelerRef.current.get('elementRegistry');
+      const canvas = modelerRef.current.get('canvas');
+      
+      // Resetowanie wszystkich ramek
+      elementRegistry.getAll().forEach(el => {
+        const bo = el.businessObject;
+        if (bo && /Task$/.test(bo.$type)) {
+          const gfx = canvas.getGraphics(el.id);
+          if (gfx) {
+            gfx.classList.remove('validation-error');
+          }
+        }
+      });
+      
+      // Znajdź problemy i zaznacz je
       const r = l.getResults ? l.getResults() : (l._currentResult || l._results || null);
-      if (!r) { setIssues([]); return; }
-      const flat = [];
+      if (!r) return;
+      
       ['errors','warnings'].forEach(level => {
         const bucket = r[level] || {};
-        Object.keys(bucket).forEach(id => (bucket[id] || []).forEach(x => flat.push({ ...x, level, elementId: id })));
+        Object.keys(bucket).forEach(id => {
+          const el = elementRegistry.get(id);
+          if (el) {
+            const gfx = canvas.getGraphics(id);
+            if (gfx && level === 'errors') {
+              gfx.classList.add('validation-error');
+            }
+          }
+        });
       });
-      setIssues(flat);
-    } catch {
-      setIssues([]);
+
+      console.log('Validation completed');
+    } catch (err) {
+      console.error('Validation error:', err);
     }
   }, []);
 
@@ -204,67 +858,142 @@ export default function BpmnEditorClean(){
       const okD = !filterData || dt.includes(filterData);
       gfx.style.display = (okS && okD) ? '' : 'none';
       if (colorize) {
-    const first = st[0];
-    if (first) gfx.setAttribute('data-system-color', String(colorIndex.get(first) ?? 0));
-        else gfx.removeAttribute('data-system-color');
+        const first = st[0];
+        if (first) {
+          const colorIdx = colorIndex.get(first) ?? 0;
+          gfx.setAttribute('data-system-color', String(colorIdx));
+          gfx.style.stroke = `var(--system-color-${colorIdx})`;
+          gfx.style.strokeWidth = '2px';
+        } else {
+          gfx.removeAttribute('data-system-color');
+          gfx.style.stroke = '';
+          gfx.style.strokeWidth = '';
+        }
       } else {
         gfx.removeAttribute('data-system-color');
+        gfx.style.stroke = '';
+        gfx.style.strokeWidth = '';
       }
     });
   }, [filterSystem, filterData, colorize, selected, systems, dataEntities]);
 
   const H=60;
-  return (<div className="h-screen w-full overflow-hidden flex flex-col bg-white" style={{paddingTop:H}}>
-    <div className="fixed top-0 left-0 right-0 h-[60px] flex items-center flex-wrap gap-2 px-4 z-[9000] bg-neutral-900/90 backdrop-blur border-b border-white/10 shadow-lg">
-      <span className="text-lg font-semibold text-white tracking-wide mr-2">Process Studio</span>
-      <button onClick={newDiagram} className="btn btn-secondary text-xs" title="New">🆕</button>
-      <button onClick={()=>fileRef.current?.click()} className="btn btn-secondary text-xs" title="Open">📂</button>
-      <input ref={fileRef} type="file" accept=".bpmn,.xml" onChange={openFile} className="hidden" />
-      <button onClick={toggleSaveOptions} className="btn btn-primary text-xs" title="Save Options">💾 Zapisz</button>
-      <div className="flex items-center gap-1 ml-2">
-        <button onClick={undo} className="btn btn-secondary text-xs" title="Undo">↶</button>
-        <button onClick={redo} className="btn btn-secondary text-xs" title="Redo">↷</button>
-        <button onClick={zin} className="btn btn-secondary text-xs px-2" title="Zoom In">＋</button>
-        <button onClick={zout} className="btn btn-secondary text-xs px-2" title="Zoom Out">－</button>
-        <button onClick={resetView} className="btn btn-secondary text-xs px-2" title="Fit">♻</button>
+  return (<div className="h-screen w-full overflow-auto flex flex-col bg-gradient-to-br from-slate-50 to-white">
+    <div className="sticky top-0 left-0 right-0 h-[60px] flex items-center flex-wrap gap-2 px-4 z-[9000] bg-gradient-to-r from-slate-800 to-slate-700 backdrop-blur border-b border-blue-500/30 shadow-xl">
+      <div className="flex items-center gap-2">
+        <button onClick={newDiagram} className="btn btn-secondary flex items-center gap-1 bg-white" title="New">
+          <span className="text-xs mr-1">🆕</span>
+          <span className="inline">New</span>
+        </button>
+        <button onClick={()=>fileRef.current?.click()} className="btn btn-secondary flex items-center gap-1 bg-white" title="Open">
+          <span className="text-xs mr-1">📂</span>
+          <span className="inline">Open</span>
+        </button>
+        <input ref={fileRef} type="file" accept=".bpmn,.xml" onChange={openFile} className="hidden" />
+        <button onClick={toggleSaveOptions} className="btn btn-success flex items-center gap-1 bg-white text-green-700 border border-green-300" title="Save Options">
+          <span className="text-base mr-1">💾</span>
+          <span className="inline">Save</span>
+        </button>
+        <button onClick={()=>setShowTemplates(true)} className="btn btn-info flex items-center gap-1 bg-white text-indigo-700 border border-indigo-300" title="Templates">
+          <span className="text-base mr-1">📄</span>
+          <span className="inline">Templates</span>
+        </button>
+        <button onClick={()=>setShowCatalog(true)} className="btn btn-warning flex items-center gap-1 bg-white text-amber-700 border border-amber-300" title="Catalog">
+          <span className="text-base mr-1">📋</span>
+          <span className="inline">Catalog</span>
+        </button>
       </div>
-      <input value={fileName} onChange={e=>setFileName(e.target.value)} className="px-3 py-2 border border-gray-300/60 rounded-md w-48 bg-white/80 text-sm" placeholder="File name" />
-      <select value={filterSystem} onChange={e=>setFilterSystem(e.target.value)} className="border px-2 py-1 rounded text-xs bg-white/80"><option value="">All Systems</option>{systems.map(s=> <option key={s.id} value={s.id}>{s.id}</option>)}</select>
-      <select value={filterData} onChange={e=>setFilterData(e.target.value)} className="border px-2 py-1 rounded text-xs bg-white/80"><option value="">All Data</option>{dataEntities.map(d=> <option key={d} value={d}>{d}</option>)}</select>
-      <button onClick={()=>{setFilterSystem(''); setFilterData('');}} className="btn btn-ghost text-xs" title="Clear filters">✖</button>
-      <button onClick={()=>setColorize(c=>!c)} className={`btn text-xs ${colorize?'btn-primary':'btn-secondary'}`} title="Colorize">🎨</button>
-      <button onClick={runLint} className="btn btn-secondary text-xs" title="Validate">✔</button>
-      <button onClick={()=>setShowIssues(s=>!s)} className="btn btn-secondary text-xs" title="Issues">⚠ {issues.length}</button>
-      <button onClick={exportCSV} className="btn btn-secondary text-xs" title="CSV">📑</button>
-  <button onClick={toggleTemplates} className={`btn ${showTemplates ? 'btn-success' : 'btn-primary'} text-xs`} title="Templates">📦 Templates</button>
-  <button onClick={toggleCatalog} className={`btn ${showCatalog ? 'btn-success' : 'btn-primary'} text-xs`} title="Catalog">🗂 Catalog</button>
-      <button onClick={exportSVG} className="btn btn-secondary text-xs" title="SVG">🧬</button>
-      <button onClick={exportPNG} className="btn btn-secondary text-xs" title="PNG">🖼</button>
-      <button onClick={exportPDF} className="btn btn-secondary text-xs" title="PDF">📄</button>
-    </div>
-    <div ref={containerRef} onDragOver={e=>{e.preventDefault(); setDrag(true);}} onDragLeave={e=>{e.preventDefault(); setDrag(false);}} onDrop={async e=>{e.preventDefault(); setDrag(false); const f=e.dataTransfer.files?.[0]; if(!f)return; if(!/\.(bpmn|xml)$/i.test(f.name)){alert('Not BPMN');return;} const txt=await f.text(); try{await modelerRef.current.importXML(txt); modelerRef.current.get('canvas').zoom('fit-viewport'); localStorage.setItem('diagram',txt); setFileName(f.name.replace(/\.bpmn$/i,'').replace(/\.xml$/i,'')); runLint();}catch{alert('Import failed')}}} className={`flex-1 relative border border-gray-400/40 rounded-lg overflow-hidden w-full ${drag?'ring-4 ring-blue-400 ring-offset-2':''}`} style={{minHeight:0}}>
-      {drag && <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center text-gray-700 text-lg font-semibold pointer-events-none">Drop .bpmn / .xml file</div>}
-    </div>
-
-    {/* Issues Panel */}
-    {showIssues && (
-      <div className="fixed bottom-4 right-4 max-h-60 w-72 bg-white backdrop-blur border border-amber-300 rounded-lg shadow-lg overflow-auto text-xs z-[9999]">
-        <div className="sticky top-0 bg-amber-100 px-2 py-1 font-semibold text-amber-800 flex justify-between items-center text-[11px]">
-          <span>Issues ({issues.length})</span>
-          <div className="flex gap-1">
-            <button onClick={runLint} className="bg-amber-500 text-white px-2 py-0.5 rounded" title="Refresh">↻</button>
-            <button onClick={()=>setShowIssues(false)} className="bg-amber-300 text-amber-800 px-2 py-0.5 rounded" title="Close">✕</button>
-          </div>
-        </div>
-        {issues.length===0 && <div className="p-2 text-green-600">No issues 🎉</div>}
-        {issues.map((iss,i)=>(
-          <button key={i} onClick={()=>focus(iss.elementId)} className={`block w-full text-left px-2 py-1 border-b last:border-b-0 hover:bg-amber-50 ${iss.level==='errors'?'text-red-600':'text-amber-700'}`} title={iss.id}>
-            <span className="font-medium">[{iss.level==='errors'?'ERR':'WARN'}]</span> {iss.message}
-            <div className="text-[10px] opacity-70">{iss.elementId}</div>
+      
+      <div className="flex items-center gap-1 ml-2 bg-white px-2 py-1 rounded-lg shadow-sm">
+        <button onClick={undo} className="btn btn-secondary text-xs p-1 px-2 bg-white border border-gray-200" title="Undo">
+          ↶
+        </button>
+        <button onClick={redo} className="btn btn-secondary text-xs p-1 px-2 bg-white border border-gray-200" title="Redo">
+          ↷
+        </button>
+        <div className="w-[1px] h-4 bg-gray-300 mx-1"></div>
+        <button onClick={zin} className="btn btn-secondary text-xs p-1 px-2 bg-white border border-gray-200" title="Zoom In">
+          ＋
+        </button>
+        <button onClick={zout} className="btn btn-secondary text-xs p-1 px-2 bg-white border border-gray-200" title="Zoom Out">
+          －
+        </button>
+        <button onClick={resetView} className="btn btn-secondary text-xs p-1 px-2 bg-white border border-gray-200" title="Fit">
+          ♻
+        </button>
+      </div>
+      
+      <div className="flex-grow"></div>
+      
+      <div className="flex items-center gap-2">
+        <div className="flex items-center space-x-2">
+          <select value={filterSystem} onChange={e=>setFilterSystem(e.target.value)} className="select-modern bg-white text-gray-700">
+            <option value="">All Systems</option>
+            {systems.map(s=> <option key={s.id} value={s.id}>{s.id}</option>)}
+          </select>
+          <select value={filterData} onChange={e=>setFilterData(e.target.value)} className="select-modern bg-white text-gray-700">
+            <option value="">All Data</option>
+            {dataEntities.map(d=> <option key={d} value={d}>{d}</option>)}
+          </select>
+          <button onClick={()=>{setFilterSystem(''); setFilterData('');}} className="btn btn-secondary text-gray-700 text-xs p-1 px-2 bg-white border border-gray-200" title="Clear filters">
+            ✖
           </button>
-        ))}
+        </div>
+      
+        <div className="flex items-center gap-2 ml-2">
+          <button onClick={() => setColorize(!colorize)} className="btn bg-white text-gray-700 border border-gray-300 flex items-center" title="Colorize">
+            <span className="text-base mr-1">🎨</span>
+            <span>Colorize</span>
+            <div className={`ml-2 w-4 h-4 rounded-full ${colorize ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+          </button>
+          
+          <button onClick={runLint} className="btn bg-white text-gray-700 border border-gray-300 flex items-center" title="Validate">
+            <span className="mr-1">✔</span>
+            <span>Validate</span>
+          </button>
+        </div>
       </div>
-    )}
+      <button onClick={exportCSV} className="btn btn-secondary text-xs bg-white border border-gray-200 flex items-center" title="CSV">
+        <span className="text-base mr-1">&#x1F4CA;</span>
+        <span>CSV</span>
+      </button>
+
+    </div>
+    <div ref={containerRef} 
+      onDragOver={e=>{e.preventDefault(); setDrag(true);}} 
+      onDragLeave={e=>{e.preventDefault(); setDrag(false);}} 
+      onDrop={async e=>{
+        e.preventDefault(); 
+        setDrag(false); 
+        const f=e.dataTransfer.files?.[0]; 
+        if(!f) return; 
+        if(!/\.(bpmn|xml)$/i.test(f.name)){
+          alert('Not BPMN');
+          return;
+        } 
+        const txt=await f.text(); 
+        try {
+          await modelerRef.current.importXML(txt); 
+          modelerRef.current.get('canvas').zoom('fit-viewport'); 
+          localStorage.setItem('diagram',txt); 
+          setFileName(f.name.replace(/\.bpmn$/i,'').replace(/\.xml$/i,'')); 
+          runLint();
+        } catch {
+          alert('Import failed')
+        }
+      }} 
+      className={`flex-1 relative border-2 border-slate-200 rounded-xl overflow-hidden w-full m-4 ${
+        drag ? 'ring-4 ring-blue-400 ring-offset-2' : 'shadow-lg hover:shadow-xl transition-shadow duration-300'
+      }`} 
+      style={{minHeight:0}}>
+      
+      {drag && <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center text-slate-700 text-lg font-semibold pointer-events-none">
+        <div className="bg-white/80 p-6 rounded-lg shadow-lg border border-blue-200 flex flex-col items-center">
+          <div className="text-blue-600 text-4xl mb-3">📄</div>
+          Drop .bpmn / .xml file
+        </div>
+      </div>}
+    </div>
 
     {/* Templates Modal with Backdrop - Redesigned */}
     {showTemplates && (
@@ -397,9 +1126,30 @@ export default function BpmnEditorClean(){
             <h2>Zapisz diagram</h2>
             <button onClick={toggleSaveOptions} className="modal-close-btn">×</button>
           </div>
+          <div className="px-6 py-4 bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100">
+            <label className="block text-sm font-medium text-emerald-700 mb-2">Nazwa pliku:</label>
+            <div className="relative">
+              <input 
+                value={fileName} 
+                onChange={e=>setFileName(e.target.value)} 
+                className="w-full px-4 py-3 border border-emerald-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all pl-10" 
+                placeholder="Nazwa pliku" 
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
           <div className="modal-body">
             <div className="save-option" onClick={() => { save(); toggleSaveOptions(); }}>
-              <div className="save-option-icon">📄</div>
+              <div className="save-option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                  <path d="M8 11a1 1 0 100-2H7a1 1 0 000 2h1zm2 0a1 1 0 100-2 1 1 0 000 2zm3-1a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z" />
+                </svg>
+              </div>
               <div className="save-option-content">
                 <div className="save-option-title">BPMN (.bpmn)</div>
                 <div className="save-option-desc">Standardowy format XML dla diagramów procesów biznesowych</div>
@@ -407,7 +1157,11 @@ export default function BpmnEditorClean(){
             </div>
             
             <div className="save-option" onClick={() => { exportSVG(); toggleSaveOptions(); }}>
-              <div className="save-option-icon">🧬</div>
+              <div className="save-option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="save-option-content">
                 <div className="save-option-title">SVG (.svg)</div>
                 <div className="save-option-desc">Wektorowy format graficzny, idealny do umieszczenia w dokumentacji</div>
@@ -415,7 +1169,11 @@ export default function BpmnEditorClean(){
             </div>
             
             <div className="save-option" onClick={() => { exportPNG(); toggleSaveOptions(); }}>
-              <div className="save-option-icon">🖼️</div>
+              <div className="save-option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="save-option-content">
                 <div className="save-option-title">PNG (.png)</div>
                 <div className="save-option-desc">Rastrowy format graficzny z przezroczystością</div>
@@ -423,7 +1181,11 @@ export default function BpmnEditorClean(){
             </div>
             
             <div className="save-option" onClick={() => { exportPDF(); toggleSaveOptions(); }}>
-              <div className="save-option-icon">📕</div>
+              <div className="save-option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="save-option-content">
                 <div className="save-option-title">PDF (.pdf)</div>
                 <div className="save-option-desc">Format dokumentu, dobry do drukowania i udostępniania</div>
@@ -431,18 +1193,51 @@ export default function BpmnEditorClean(){
             </div>
             
             <div className="save-option" onClick={() => { exportCSV(); toggleSaveOptions(); }}>
-              <div className="save-option-icon">📊</div>
+              <div className="save-option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="save-option-content">
                 <div className="save-option-title">Raport CSV (.csv)</div>
                 <div className="save-option-desc">Eksport zadań i ich tagów do pliku CSV</div>
               </div>
             </div>
           </div>
-          <div className="modal-footer">
-            <small>Pliki będą zapisane z nazwą: {fileName}</small>
+          <div className="modal-footer flex justify-between items-center">
+            <small>Pliki zostaną zapisane z podaną nazwą i odpowiednim rozszerzeniem</small>
+            <button onClick={toggleSaveOptions} className="btn-secondary text-sm px-3 py-1">Anuluj</button>
           </div>
         </div>
       </>
     )}
+
+    {/* Credits Footer */}
+    <div className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-white py-3 px-4 mt-auto border-t border-blue-500/30 shadow-lg">
+      <div className="container mx-auto flex flex-col items-center text-center">
+        <div className="flex items-center mb-2">
+          <span className="text-xl mr-2 footer-icon">✈️</span>
+          <span className="font-medium text-lg">Flight BPMN Process Studio</span>
+        </div>
+        <div className="text-sm text-slate-300 mb-1">
+          Modern Business Process Modeling Solution
+        </div>
+        <div className="text-sm text-slate-300 mb-1">
+          © {new Date().getFullYear()} Flight Systems. All rights reserved.
+        </div>
+        <div className="text-xs text-slate-400">
+          <span>Designed & Developed by </span>
+          <span className="font-semibold text-white">Stanisław Dutkiewicz</span>
+          <span className="mx-1">|</span>
+          <span>Version 1.0.0</span>
+        </div>
+      </div>
+    </div>
   </div>);
 }
+
+
+
+
+
+
