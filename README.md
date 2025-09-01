@@ -1,7 +1,5 @@
 # ✈️ Flight BPMN Process Editor
 
-![BPMN Process Editor](./screenshots/bpmn-editor.png)
-
 ## What is this project?
 
 The Flight BPMN Process Editor is a specialized web application designed for aviation professionals, a## 📜 License
@@ -154,7 +152,7 @@ npm run build
 
 The compiled files will be located in the `dist/` directory.
 
-## � Technical Implementation Details
+## Technical Implementation Details
 
 ### System Architecture
 
@@ -222,7 +220,8 @@ The exported BPMN XML files:
 5. **Implement** changes with clear documentation
 6. **Monitor** process performance after changes
 
-## �📄 License
+
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
