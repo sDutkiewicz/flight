@@ -4,7 +4,9 @@
 
 ## What is this project?
 
-The Flight BPMN Process Editor is a specialized web application designed for aviation professionals, airport operators, and process analysts to model, document, and optimize operational processes within the aviation ecosystem. This tool allows you to create, edit, and export BPMN (Business Process Model and Notation) diagrams with a focus on flight operations, airport management, and related systems.
+The Flight BPMN Process Editor is a specialized web application designed for aviation professionals, a## 📜 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.ort operators, and process analysts to model, document, and optimize operational processes within the aviation ecosystem. This tool allows you to create, edit, and export BPMN (Business Process Model and Notation) diagrams with a focus on flight operations, airport management, and related systems.
 
 ## Purpose & Applications
 
